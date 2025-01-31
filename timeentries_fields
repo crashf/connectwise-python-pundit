@@ -1,0 +1,202 @@
+[
+  {
+    "id": 0,
+    "company": {
+      "id": 0,
+      "identifier": "string",
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "companyType": "string",
+    "chargeToId": 0,
+    "chargeToType": "Company",
+    "member": {
+      "id": 0,
+      "identifier": "string",
+      "name": "string",
+      "dailyCapacity": 0,
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "locationId": 0,
+    "businessUnitId": 0,
+    "businessGroupDesc": "string",
+    "location": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "department": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "workType": {
+      "id": 0,
+      "name": "string",
+      "utilizationFlag": true,
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "workRole": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "agreement": {
+      "id": 0,
+      "name": "string",
+      "type": "string",
+      "chargeFirmFlag": true,
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "agreementType": "string",
+    "activity": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "opportunityRecid": 0,
+    "projectActivity": "string",
+    "territory": "string",
+    "timeStart": "2025-01-31T08:29:29.728Z",
+    "timeEnd": "2025-01-31T08:29:29.728Z",
+    "hoursDeduct": 0,
+    "actualHours": 0,
+    "billableOption": "Billable",
+    "notes": "string",
+    "internalNotes": "string",
+    "addToDetailDescriptionFlag": true,
+    "addToInternalAnalysisFlag": true,
+    "addToResolutionFlag": true,
+    "emailResourceFlag": true,
+    "emailContactFlag": true,
+    "emailCcFlag": true,
+    "emailCc": "string",
+    "hoursBilled": 0,
+    "invoiceHours": 0,
+    "hourlyCost": "string",
+    "enteredBy": "string",
+    "dateEntered": "2025-01-31T08:29:29.728Z",
+    "invoice": {
+      "id": 0,
+      "identifier": "string",
+      "billingType": "string",
+      "applyToType": "string",
+      "invoiceDate": "string",
+      "chargeFirmFlag": true,
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "mobileGuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "hourlyRate": 0,
+    "overageRate": 0,
+    "agreementHours": 0,
+    "agreementAmount": 0,
+    "agreementAdjustment": 0,
+    "adjustment": 0,
+    "invoiceReady": 0,
+    "timeSheet": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "status": "Open",
+    "ticket": {
+      "id": 0,
+      "summary": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "project": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "phase": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "ticketBoard": "string",
+    "ticketStatus": "string",
+    "ticketType": "string",
+    "ticketSubType": "string",
+    "invoiceFlag": true,
+    "extendedInvoiceAmount": 0,
+    "locationName": "string",
+    "taxCode": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "_info": {
+      "additionalProp1": "string",
+      "additionalProp2": "string",
+      "additionalProp3": "string"
+    },
+    "customFields": [
+      {
+        "id": 0,
+        "caption": "string",
+        "type": "TextArea",
+        "entryMethod": "Date",
+        "numberOfDecimals": 0,
+        "value": {},
+        "connectWiseId": "string"
+      }
+    ]
+  }
+]
