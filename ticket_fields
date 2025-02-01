@@ -2,7 +2,6 @@
   {
     "id": 0,
     "summary": "string",
-    "recordType": "ProjectIssue",
     "board": {
       "id": 0,
       "name": "string",
