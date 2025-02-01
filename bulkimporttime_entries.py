@@ -47,31 +47,32 @@ cursor.execute('''
     )
 ''')
 
-# Fetch paginated time entries data
-paginated_time_entries = manage_api_client.time.entries.paginated(1, 1000)
+# Fetch the last entry's ID from the database
+cursor.execute('''SELECT MAX(id) FROM time_entries''')
+last_entry_id = cursor.fetchone()[0] or 0
+#print(f"Last entry ID: {last_entry_id}")
+#pause = input("Press enter to continue")
 
-page_number = 1
+# Fetch paginated time entries data starting after the last entry
+paginated_time_entries = manage_api_client.time.entries.paginated(90, 1000)
+
+page_number = 90
 while True:
     page_data = paginated_time_entries.data
     print(f"Page {page_number} data: {len(page_data)}")
     
     for entry in page_data:
-        cursor.execute('''SELECT COUNT(*) FROM time_entries WHERE id = %s''', (entry.id,))
-        if cursor.fetchone()[0] == 0:
-            cursor.execute('''
-                INSERT INTO time_entries (id, company_identifier, company_id, member_identifier, time_start, time_end, hours, billable_option, notes, internal_notes, date_entered, timesheet_id, timesheet_name, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ''', (entry.id, entry.company.identifier, entry.company.id, entry.member.identifier, entry.time_start, entry.time_end, entry.actual_hours, entry.billable_option, entry.notes, entry.internal_notes, entry.date_entered, entry.time_sheet.id, entry.time_sheet.name, entry.status))
-        else:
-            cursor.execute('''
-                UPDATE time_entries
-                SET company_identifier = %s, company_id = %s, member_identifier = %s, time_start = %s, time_end = %s, hours = %s, billable_option = %s, notes = %s, internal_notes = %s, date_entered = %s, timesheet_id = %s, timesheet_name = %s, status = %s
-                WHERE id = %s
-            ''', (entry.company.identifier, entry.company.id, entry.member.identifier, entry.time_start, entry.time_end, entry.actual_hours, entry.billable_option, entry.notes, entry.internal_notes, entry.date_entered, entry.time_sheet.id, entry.time_sheet.name, entry.status, entry.id))
-    
-        conn.commit()
-        #print(f"ID: {entry.id}\n, Company Identifier: {entry.company.identifier}\n, Company ID: {entry.company.id}\n, Member Identifier: {entry.member.identifier}\n, Time Start: {entry.time_start}\n, Time End: {entry.time_end}\n, Hours: {entry.actual_hours}\n, Billable Option: {entry.billable_option}\n, Notes: {entry.notes}\n, Internal Notes: {entry.internal_notes}\n, Date Entered: {entry.date_entered}\n, Timesheet ID: {entry.time_sheet.id}\n, Timesheet Name: {entry.time_sheet.name}\n, Status: {entry.status}\n")
-        #pause = input("Press enter to continue")
+        try:
+            cursor.execute('''SELECT COUNT(*) FROM time_entries WHERE id = %s''', (entry.id,))
+            if cursor.fetchone()[0] == 0:
+                cursor.execute('''
+                    INSERT INTO time_entries (id, company_identifier, company_id, member_identifier, time_start, time_end, hours, billable_option, notes, internal_notes, date_entered, timesheet_id, timesheet_name, status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ''', (entry.id, entry.company.identifier, entry.company.id, entry.member.identifier, entry.time_start, entry.time_end, entry.actual_hours, entry.billable_option, entry.notes, entry.internal_notes, entry.date_entered, entry.time_sheet.id, entry.time_sheet.name, entry.status))
+                conn.commit()
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+            continue
     
     if not paginated_time_entries.has_next_page:
         break
