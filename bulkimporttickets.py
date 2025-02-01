@@ -1,13 +1,9 @@
 from pyconnectwise import ConnectWiseManageAPIClient
 from pyconnectwise.config import Config
 from datetime import datetime
-import argparse
-import json
-from creds import connectwise_credentials, mysql_credentials
 import mysql.connector
+from creds import connectwise_credentials, mysql_credentials
 
-
-## This script will connect to the connectwise api and pull all data, one page at a time and dump it into a mysql database
 
 # Initialize the ConnectWise client
 manage_api_client = ConnectWiseManageAPIClient(
@@ -32,30 +28,79 @@ cursor.execute('''
     CREATE TABLE IF NOT EXISTS service_tickets (
         id INT PRIMARY KEY,
         summary VARCHAR(255),
-        status VARCHAR(255),
-        priority VARCHAR(255),
-        service_board VARCHAR(255),
+        board_id INT,
+        board_name VARCHAR(255),
+        status_id INT,
+        status_name VARCHAR(255),
+        status_sort INT,
         company_id INT,
+        company_identifier VARCHAR(255),
         company_name VARCHAR(255),
-        contact_id INT,
-        contact_name VARCHAR(255),
-        assigned_resource_id INT,
-        assigned_resource_name VARCHAR(255),
-        date_entered DATETIME,
+        severity VARCHAR(255),
+        impact VARCHAR(255),
+        customer_updated_flag BOOLEAN,
+        initial_description TEXT,
+        initial_internal_analysis TEXT,
+        initial_resolution TEXT,
+        initial_description_from VARCHAR(255),
+        process_notifications BOOLEAN,
+        skip_callback BOOLEAN,
+        closed_date DATETIME,
+        closed_by VARCHAR(255),
+        closed_flag BOOLEAN,
+        actual_hours FLOAT,
+        approved BOOLEAN,
         date_resolved DATETIME,
-        date_closed DATETIME,
-        date_due DATETIME,
-        date_escalated DATETIME,
-        date_scheduled_start DATETIME,
-        date_scheduled_end DATETIME,
-        date_rescheduled DATETIME,
-        date_last_updated DATETIME,
-        closed_by_resource_id INT,
-        closed_by_resource_name VARCHAR(255),
-        resolution TEXT,
-        closed_flag BOOLEAN
+        date_resplan DATETIME,
+        date_responded DATETIME,
+        resolve_minutes INT,
+        res_plan_minutes INT,
+        respond_minutes INT,
+        is_in_sla BOOLEAN,
+        knowledge_base_link_id INT,
+        resources TEXT,
+        parent_ticket_id INT,
+        has_child_ticket BOOLEAN,
+        has_merged_child_ticket_flag BOOLEAN,
+        knowledge_base_link_type VARCHAR(255),
+        bill_time VARCHAR(255),
+        bill_expenses VARCHAR(255),
+        bill_products VARCHAR(255),
+        lag_days INT,
+        lag_nonworking_days_flag BOOLEAN,
+        estimated_start_date DATETIME,
+        duration FLOAT,
+        sla_status VARCHAR(255),
+        request_for_change_flag BOOLEAN,
+        escalation_start_date_utc DATETIME,
+        escalation_level INT,
+        minutes_before_waiting INT,
+        responded_skipped_minutes INT,
+        resplan_skipped_minutes INT,
+        responded_hours FLOAT,
+        responded_by VARCHAR(255),
+        resplan_hours FLOAT,
+        resplan_by VARCHAR(255),
+        resolution_hours FLOAT,
+        resolved_by VARCHAR(255),
+        minutes_waiting INT
     )
 ''')
+
+# Function to convert empty fields to NULL
+def clean_value(value):
+    if value is None or value == "" or value == "null":
+        return None
+    return value
+
+# Function to convert date fields
+def convert_datetime(dt_str):
+    if dt_str:
+        try:
+            return datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ')
+        except ValueError:
+            return None
+    return None
 
 # Fetch paginated service tickets data
 paginated_service_tickets = manage_api_client.service.tickets.paginated(1, 1000)
@@ -66,30 +111,54 @@ while True:
     print(f"Page {page_number} data: {len(page_data)}")
     
     for ticket in page_data:
-        cursor.execute('''SELECT COUNT(*) FROM service_tickets WHERE id = %s''', (ticket.id,))
-        if cursor.fetchone()[0] == 0:
-            if ticket.closed_flag:
+        try:
+            cursor.execute("SELECT COUNT(*) FROM service_tickets WHERE id = %s", (ticket.id,))
+            if cursor.fetchone()[0] == 0:
                 cursor.execute('''
-                    INSERT INTO service_tickets (id, summary, status, priority, service_board, company_id, company_name, contact_id, contact_name, assigned_resource_id, assigned_resource_name, date_entered, date_resolved, date_closed, date_due, date_escalated, date_scheduled_start, date_scheduled_end, date_rescheduled, date_last_updated, closed_by_resource_id, closed_by_resource_name, resolution, closed_flag)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ''', (ticket.id, ticket.summary, ticket.status.name, ticket.priority.name, ticket.board.name, ticket.company.id, ticket.company.name, ticket.contact.id, ticket.contact.name, ticket.assigned_resource.id, ticket.assigned_resource.name, ticket.date_entered, ticket.date_resolved, ticket.date_closed, ticket.date_due, ticket.date_escalated, ticket.date_scheduled_start, ticket.date_scheduled_end, ticket.date_rescheduled, ticket.date_last_updated, ticket.closed_by_resource.id, ticket.closed_by_resource.name, ticket.resolution, ticket.closed_flag))
-                print(f"ID: {ticket.id}\nSummary: {ticket.summary}\nStatus: {ticket.status.name}\nPriority: {ticket.priority.name}\nService Board: {ticket.board.name}\nCompany ID: {ticket.company.id}\nCompany Name: {ticket.company.name}\nContact ID: {ticket.contact.id}\nContact Name: {ticket.contact.name}\nAssigned Resource ID: {ticket.assigned_resource.id}\nAssigned Resource Name: {ticket.assigned_resource.name}\nDate Entered: {ticket.date_entered}\nDate Resolved: {ticket.date_resolved}\nDate Closed: {ticket.date_closed}\nDate Due: {ticket.date_due}\nDate Escalated: {ticket.date_escalated}\nDate Scheduled Start: {ticket.date_scheduled_start}\nDate Scheduled End: {ticket.date_scheduled_end}\nDate Rescheduled: {ticket.date_rescheduled}\nDate Last Updated: {ticket.date_last_updated}\nClosed By Resource ID: {ticket.closed_by_resource.id}\nClosed By Resource Name: {ticket.closed_by_resource.name}\nResolution: {ticket.resolution}\nClosed Flag: {ticket.closed_flag}\n")
-            else:
-                cursor.execute('''
-                    INSERT INTO service_tickets (id, summary, status, priority, service_board, company_id, company_name, contact_id, contact_name, assigned_resource_id, assigned_resource_name, date_entered, date_resolved, date_closed, date_due, date_escalated, date_scheduled_start, date_scheduled_end, date_rescheduled, date_last_updated, closed_by_resource_id, closed_by_resource_name, resolution, closed_flag)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ''', (ticket.id, ticket.summary, ticket.status.name, ticket.priority.name, ticket.board.name, ticket.company.id, ticket.company.name, ticket.contact.id, ticket.contact.name, ticket.assigned_resource.id, ticket.assigned_resource.name, ticket.date_entered, ticket.date_resolved, ticket.date_closed, ticket.date_due, ticket.date_escalated, ticket.date_scheduled_start, ticket.date_scheduled_end, ticket.date_rescheduled, ticket.date_last_updated, ticket.closed_by_resource.id, ticket.closed_by_resource.name, ticket.resolution, ticket.closed_flag))
-                print(f"ID: {ticket.id}\nSummary: {ticket.summary}\nStatus: {ticket.status.name}\nPriority: {ticket.priority.name}\nService Board: {ticket.board.name}\nCompany ID: {ticket.company.id}\nCompany Name: {ticket.company.name}\nContact ID: {ticket.contact.id}\nContact Name: {ticket.contact.name}\nAssigned Resource ID: {ticket.assigned_resource.id}\nAssigned Resource Name: {ticket.assigned_resource.name}\nDate Entered: {ticket.date_entered}\nDate Resolved: {ticket.date_resolved}\nDate Closed: {ticket.date_closed}\nDate Due: {ticket.date_due}\nDate Escalated: {ticket.date_escalated}\nDate Scheduled Start: {ticket.date_scheduled_start}\nDate Scheduled End: {ticket.date_scheduled_end}\nDate Rescheduled: {ticket.date_rescheduled}\nDate Last Updated: {ticket.date_last_updated}\nClosed By Resource ID: {ticket.closed_by_resource.id}\nClosed By Resource Name: {ticket.closed_by_resource.name}\nResolution: {ticket.resolution}\nClosed Flag: {ticket.closed_flag}\n")
-        else:
-            cursor.execute('''
-                UPDATE service_tickets
-                SET summary = %s, status = %s, priority = %s, service_board = %s, company_id = %s, company_name = %s, contact_id = %s, contact_name = %s, assigned_resource_id = %s, assigned_resource_name = %s, date_entered = %s, date_resolved = %s, date_closed = %s, date_due = %s, date_escalated = %s, date_scheduled_start = %s, date_scheduled_end = %s, date_rescheduled = %s, date_last_updated = %s, closed_by_resource_id = %s, closed_by_resource_name = %s, resolution = %s, closed_flag = %s
-                WHERE id = %s
-            ''', (ticket.summary, ticket.status.name, ticket.priority.name, ticket.board.name, ticket.company.id, ticket.company.name, ticket.contact.id, ticket.contact.name, ticket.assigned_resource.id, ticket.assigned_resource.name, ticket.date_entered, ticket.date_resolved, ticket.date_closed, ticket.date_due, ticket.date_escalated, ticket.date_scheduled_start, ticket.date_scheduled_end, ticket.date_rescheduled, ticket.date_last_updated, ticket.closed_by_resource.id, ticket.closed_by_resource.name, ticket.resolution, ticket.closed_flag, ticket.id))
-            print(f"ID: {ticket.id}\nSummary: {ticket.summary}\nStatus: {ticket.status.name}\nPriority: {ticket.priority.name}\nService Board: {ticket.board.name}\nCompany ID: {ticket.company.id}\nCompany Name: {ticket.company.name}\nContact ID: {ticket.contact.id}\nContact Name: {ticket.contact.name}\nAssigned Resource ID: {ticket.assigned_resource.id}\nAssigned Resource Name: {ticket.assigned_resource.name}\nDate Entered: {ticket.date_entered}\nDate Resolved: {ticket.date_resolved}\nDate Closed: {ticket.date_closed}\nDate Due: {ticket.date_due}\nDate Escalated: {ticket.date_escalated}\nDate Scheduled Start: {ticket.date_scheduled_start}\nDate Scheduled End: {ticket.date_scheduled_end}\nDate Rescheduled: {ticket.date_rescheduled}\nDate Last Updated: {ticket.date_last_updated}\nClosed By Resource ID: {ticket.closed_by_resource.id}\nClosed By Resource Name: {ticket.closed_by_resource.name}\nResolution: {ticket.resolution}\nClosed Flag: {ticket.closed_flag}\n")
-    
-        #onn.commit()
-        pause = input("Press enter to continue")
+                    INSERT INTO service_tickets (
+                        id, summary, board_id, board_name, status_id, status_name, status_sort, 
+                        company_id, company_identifier, company_name, severity, impact, customer_updated_flag, 
+                        initial_description, initial_internal_analysis, initial_resolution, initial_description_from, 
+                        process_notifications, skip_callback, closed_date, closed_by, closed_flag, actual_hours, approved, 
+                        date_resolved, date_resplan, date_responded, resolve_minutes, res_plan_minutes, respond_minutes, 
+                        is_in_sla, knowledge_base_link_id, resources, parent_ticket_id, has_child_ticket, 
+                        has_merged_child_ticket_flag, knowledge_base_link_type, bill_time, bill_expenses, bill_products, 
+                        lag_days, lag_nonworking_days_flag, estimated_start_date, duration, sla_status, 
+                        request_for_change_flag, escalation_start_date_utc, escalation_level, minutes_before_waiting, 
+                        responded_skipped_minutes, resplan_skipped_minutes, responded_hours, responded_by, resplan_hours, 
+                        resplan_by, resolution_hours, resolved_by, minutes_waiting
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ''', (
+                    ticket.id, clean_value(ticket.summary), 
+                    clean_value(getattr(ticket.board, 'id', None)), clean_value(getattr(ticket.board, 'name', None)), 
+                    clean_value(getattr(ticket.status, 'id', None)), clean_value(getattr(ticket.status, 'name', None)), 
+                    clean_value(getattr(ticket.status, 'sort', None)), clean_value(getattr(ticket.company, 'id', None)), 
+                    clean_value(getattr(ticket.company, 'identifier', None)), clean_value(getattr(ticket.company, 'name', None)), 
+                    clean_value(ticket.severity), clean_value(ticket.impact), clean_value(getattr(ticket, 'customerUpdatedFlag', None)), 
+                    clean_value(getattr(ticket, 'initialDescription', None)), clean_value(getattr(ticket, 'initialInternalAnalysis', None)), 
+                    clean_value(getattr(ticket, 'initialResolution', None)), clean_value(getattr(ticket, 'initialDescriptionFrom', None)), 
+                    clean_value(getattr(ticket, 'processNotifications', None)), clean_value(getattr(ticket, 'skipCallback', None)), 
+                    convert_datetime(getattr(ticket, 'closedDate', None)), clean_value(getattr(ticket, 'closedBy', None)), 
+                    clean_value(getattr(ticket, 'closedFlag', None)), clean_value(getattr(ticket, 'actualHours', None)), clean_value(getattr(ticket, 'approved', None)), 
+                    convert_datetime(getattr(ticket, 'dateResolved', None)), convert_datetime(getattr(ticket, 'dateResplan', None)), 
+                    convert_datetime(getattr(ticket, 'dateResponded', None)), clean_value(getattr(ticket, 'resolveMinutes', None)), 
+                    clean_value(getattr(ticket, 'resPlanMinutes', None)), clean_value(getattr(ticket, 'respondMinutes', None)), clean_value(getattr(ticket, 'isInSla', None)), 
+                    clean_value(getattr(ticket, 'knowledgeBaseLinkId', None)), clean_value(getattr(ticket, 'resources', None)), clean_value(getattr(ticket, 'parentTicketId', None)), 
+                    clean_value(getattr(ticket, 'hasChildTicket', None)), clean_value(getattr(ticket, 'hasMergedChildTicketFlag', None)), 
+                    clean_value(getattr(ticket, 'knowledgeBaseLinkType', None)), clean_value(getattr(ticket, 'billTime', None)), clean_value(getattr(ticket, 'billExpenses', None)), 
+                    clean_value(getattr(ticket, 'billProducts', None)), clean_value(getattr(ticket, 'lagDays', None)), clean_value(getattr(ticket, 'lagNonworkingDaysFlag', None)), 
+                    convert_datetime(getattr(ticket, 'estimatedStartDate', None)), clean_value(getattr(ticket, 'duration', None)), 
+                    clean_value(getattr(ticket, 'slaStatus', None)), clean_value(getattr(ticket, 'requestForChangeFlag', None)), 
+                    convert_datetime(getattr(ticket, 'escalationStartDateUTC', None)), clean_value(getattr(ticket, 'escalationLevel', None)), 
+                    clean_value(getattr(ticket, 'minutesBeforeWaiting', None)), clean_value(getattr(ticket, 'respondedSkippedMinutes', None)), 
+                    clean_value(getattr(ticket, 'resplanSkippedMinutes', None)), clean_value(getattr(ticket, 'respondedHours', None)), clean_value(getattr(ticket, 'respondedBy', None)), 
+                    clean_value(getattr(ticket, 'resplanHours', None)), clean_value(getattr(ticket, 'resplanBy', None)), clean_value(getattr(ticket, 'resolutionHours', None)), 
+                    clean_value(getattr(ticket, 'resolvedBy', None)), clean_value(getattr(ticket, 'minutesWaiting', None))
+                ))
+                conn.commit()
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+            continue
     
     if not paginated_service_tickets.has_next_page:
         break

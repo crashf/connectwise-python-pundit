@@ -1,0 +1,112 @@
+[
+  {
+    "id": 0,
+    "summary": "string",
+    "recordType": "ProjectIssue",
+    "board": {
+      "id": 0,
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "status": {
+      "id": 0,
+      "name": "string",
+      "sort": 0,
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "company": {
+      "id": 0,
+      "identifier": "string",
+      "name": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "owner": {
+      "id": 0,
+      "identifier": "string",
+      "name": "string",
+      "dailyCapacity": 0,
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+    "severity": "Low",
+    "impact": "Low",
+    "customerUpdatedFlag": true,
+    "initialDescription": "string",
+    "initialInternalAnalysis": "string",
+    "initialResolution": "string",
+    "initialDescriptionFrom": "string",
+    "processNotifications": true,
+    "skipCallback": true,
+    "closedDate": "string",
+    "closedBy": "string",
+    "closedFlag": true,
+    "actualHours": 0,
+    "approved": true,
+    
+    "dateResolved": "string",
+    "dateResplan": "string",
+    "dateResponded": "string",
+    "resolveMinutes": 0,
+    "resPlanMinutes": 0,
+    "respondMinutes": 0,
+    "isInSla": true,
+    "knowledgeBaseLinkId": 0,
+    "resources": "string",
+    "parentTicketId": 0,
+    "hasChildTicket": true,
+    "hasMergedChildTicketFlag": true,
+    "knowledgeBaseLinkType": "Activity",
+    "billTime": "Billable",
+    "billExpenses": "Billable",
+    "billProducts": "Billable",
+
+    "lagDays": 0,
+    "lagNonworkingDaysFlag": true,
+    "estimatedStartDate": "2025-02-01T09:33:59.476Z",
+    "duration": 0,
+
+
+    "slaStatus": "string",
+    "requestForChangeFlag": true,
+
+    "mergedParentTicket": {
+      "id": 0,
+      "summary": "string",
+      "_info": {
+        "additionalProp1": "string",
+        "additionalProp2": "string",
+        "additionalProp3": "string"
+      }
+    },
+
+
+    "escalationStartDateUTC": "string",
+    "escalationLevel": 0,
+    "minutesBeforeWaiting": 0,
+    "respondedSkippedMinutes": 0,
+    "resplanSkippedMinutes": 0,
+    "respondedHours": 0,
+    "respondedBy": "string",
+    "resplanHours": 0,
+    "resplanBy": "string",
+    "resolutionHours": 0,
+    "resolvedBy": "string",
+    "minutesWaiting": 0
+    
+  }
+]
